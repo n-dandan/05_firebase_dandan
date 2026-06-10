@@ -1,0 +1,5 @@
+# Firebase設定ファイル（APIキーを含むため除外）
+js/firebase-config.js
+
+# macOS
+.DS_Store

@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LTイベント コメント投稿</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <header class="header">
+    <div>
+      <h1>LTイベント</h1>
+      <p class="subtitle">コメント・質問を投稿しよう</p>
+    </div>
+  </header>
+
+  <main class="container">
+
+    <!-- コメント投稿フォーム -->
+    <section class="section">
+      <h2 class="section-title">コメントを投稿する</h2>
+
+      <div id="post-alert"></div>
+
+      <div class="form-group">
+        <label for="name-input" class="form-label">お名前(任意)</label>
+        <input
+          type="text"
+          id="name-input"
+          class="form-input"
+          placeholder="匿名で投稿する場合は空欄でOK"
+          maxlength="20"
+        >
+      </div>
+
+      <div class="form-group">
+        <label for="comment-input" class="form-label">コメント本文</label>
+        <textarea
+          id="comment-input"
+          class="form-textarea"
+          placeholder="感想や質問を入力してください"
+          maxlength="200"
+        ></textarea>
+        <div class="char-count"><span id="char-count">0</span> / 200</div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-checkbox">
+          <input type="checkbox" id="is-question-input">
+          <span>これは質問です</span>
+        </label>
+      </div>
+
+      <button id="submit-btn" class="btn btn-primary">投稿する</button>
+    </section>
+
+    <!-- アンケート回答セクション(管理者が公開中の場合のみ表示) -->
+    <section id="survey-section" class="section hidden">
+      <h2 class="section-title">アンケートに回答する</h2>
+      <div id="survey-list"></div>
+      <button id="survey-submit-btn" class="btn btn-primary">アンケートを送信する</button>
+    </section>
+
+    <!-- アンケート回答済みメッセージ -->
+    <section id="survey-thanks" class="section hidden">
+      <div class="alert alert-success">
+        アンケートにご回答いただきありがとうございました!
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+
+  <!-- アプリスクリプト -->
+  <script src="js/firebase-config.js"></script>
+  <script src="js/post.js"></script>
+
+</body>
+</html>
