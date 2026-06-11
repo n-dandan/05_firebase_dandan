@@ -1,0 +1,120 @@
+/* ============================================
+   参加者投稿画面 ダークテーマ
+   display.htmlのカラートーンに統一
+   ============================================ */
+
+body {
+  background-color: #0a0a0f;
+  color: #f0f0f0;
+}
+
+/* ヘッダー */
+.header {
+  background-color: rgba(255, 255, 255, 0.03);
+  border-bottom-color: rgba(255, 255, 255, 0.1);
+}
+
+.header h1 {
+  background: linear-gradient(135deg, #00d4ff 0%, #ff00aa 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.header .subtitle {
+  color: rgba(255, 255, 255, 0.45);
+}
+
+/* セクションカード */
+.section {
+  background-color: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: none;
+}
+
+.section-title {
+  color: #f0f0f0;
+}
+
+/* フォーム */
+.form-label {
+  color: rgba(255, 255, 255, 0.65);
+}
+
+.form-input,
+.form-textarea,
+.form-select {
+  background-color: rgba(255, 255, 255, 0.07);
+  border-color: rgba(255, 255, 255, 0.15);
+  color: #f0f0f0;
+}
+
+.form-input::placeholder,
+.form-textarea::placeholder {
+  color: rgba(255, 255, 255, 0.28);
+}
+
+.form-input:focus,
+.form-textarea:focus,
+.form-select:focus {
+  border-color: #00d4ff;
+  box-shadow: 0 0 0 3px rgba(0, 212, 255, 0.18);
+}
+
+.form-select option {
+  background-color: #1a1a2e;
+  color: #f0f0f0;
+}
+
+.form-checkbox {
+  color: rgba(255, 255, 255, 0.75);
+}
+
+.char-count {
+  color: rgba(255, 255, 255, 0.35);
+}
+
+/* ボタン */
+.btn-primary {
+  background: linear-gradient(135deg, #00aaff 0%, #0055ff 100%);
+  color: #ffffff;
+}
+
+.btn-primary:hover {
+  background: linear-gradient(135deg, #00bfff 0%, #0066ff 100%);
+}
+
+.btn-primary:disabled {
+  background: rgba(255, 255, 255, 0.15);
+  color: rgba(255, 255, 255, 0.4);
+  cursor: not-allowed;
+}
+
+/* アラート */
+.alert-success {
+  background-color: rgba(52, 199, 89, 0.15);
+  color: #4cd964;
+  border-color: rgba(52, 199, 89, 0.3);
+}
+
+.alert-error {
+  background-color: rgba(255, 59, 48, 0.15);
+  color: #ff6b60;
+  border-color: rgba(255, 59, 48, 0.3);
+}
+
+.alert-info {
+  background-color: rgba(0, 212, 255, 0.1);
+  color: #00d4ff;
+  border-color: rgba(0, 212, 255, 0.3);
+}
+
+/* 空状態 */
+.empty-state {
+  color: rgba(255, 255, 255, 0.3);
+}
+
+/* アンケートの補足テキスト（inline styleをCSSカスケードで上書き） */
+#survey-list .form-label span {
+  color: rgba(255, 255, 255, 0.4) !important;
+}

@@ -14,6 +14,14 @@ const surveySection = document.getElementById('survey-section');
 const surveyList = document.getElementById('survey-list');
 const surveySubmitBtn = document.getElementById('survey-submit-btn');
 const surveyThanks = document.getElementById('survey-thanks');
+const eventNameEl = document.getElementById('event-name');
+
+// イベント名をappStateから取得
+db.collection('appState').doc('current').onSnapshot((doc) => {
+  if (doc.exists) {
+    eventNameEl.textContent = doc.data().eventName || 'イベント';
+  }
+});
 
 // ============================================
 // コメント投稿

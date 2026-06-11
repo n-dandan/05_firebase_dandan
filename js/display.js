@@ -11,6 +11,33 @@ const commentsEmpty = document.getElementById('comments-empty');
 const surveyResultsContainer = document.getElementById('survey-results-container');
 const surveyEmpty = document.getElementById('survey-empty');
 const modeIndicator = document.getElementById('mode-indicator');
+const surveyBanner = document.getElementById('survey-banner');
+const qrOverlay = document.getElementById('qr-overlay');
+const eventNameEl = document.getElementById('event-name');
+
+const QR_POSITIONS = ['top-left', 'top-right', 'bottom-left', 'bottom-right'];
+
+function applyQrPosition(pos) {
+  QR_POSITIONS.forEach(p => qrOverlay.classList.remove('pos-' + p));
+  qrOverlay.classList.add('pos-' + (pos || 'bottom-right'));
+}
+
+let qrCodeInitialized = false;
+
+function initQrCode() {
+  if (qrCodeInitialized) return;
+  const indexUrl = window.location.href.replace(/display\.html.*$/, 'index.html');
+  document.getElementById('qr-url-text').textContent = indexUrl;
+  new QRCode(document.getElementById('qrcode-canvas'), {
+    text: indexUrl,
+    width: 180,
+    height: 180,
+    colorDark: '#000000',
+    colorLight: '#ffffff',
+    correctLevel: QRCode.CorrectLevel.H
+  });
+  qrCodeInitialized = true;
+}
 
 // ============================================
 // 表示モードの監視
@@ -32,6 +59,16 @@ db.collection('appState').doc('current').onSnapshot((doc) => {
     switchToCommentsMode();
   }
   renderSurveyResults();
+
+  eventNameEl.textContent = data.eventName || 'イベント Live';
+
+  applyQrPosition(data.qrPosition);
+  if (data.showQrCode) {
+    initQrCode();
+    qrOverlay.classList.remove('hidden');
+  } else {
+    qrOverlay.classList.add('hidden');
+  }
 }, (error) => {
   console.error('appState取得エラー:', error);
 });
@@ -93,6 +130,9 @@ db.collection('surveys')
     snapshot.forEach((doc) => {
       allSurveys.push({ id: doc.id, ...doc.data() });
     });
+    // isActive:true のアンケートが1件でもあればバナー表示
+    const hasActive = allSurveys.some(s => s.isActive);
+    surveyBanner.classList.toggle('hidden', !hasActive);
     renderSurveyResults();
   });
 

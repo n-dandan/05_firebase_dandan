@@ -10,9 +10,12 @@
 <body class="display-mode">
 
   <header class="display-header">
-    <h1>LTイベント Live</h1>
+    <h1 id="event-name">イベント Live</h1>
     <div class="mode-indicator" id="mode-indicator">コメント表示中</div>
   </header>
+
+  <!-- アンケートモード時のバナー -->
+  <div id="survey-banner" class="survey-banner hidden">アンケート回答受付中</div>
 
   <main class="display-main">
     <div id="display-layout">
@@ -32,9 +35,19 @@
     </div>
   </main>
 
+  <!-- QRコードオーバーレイ -->
+  <div id="qr-overlay" class="qr-overlay hidden">
+    <p class="qr-label">コメント投稿はこちら</p>
+    <div id="qrcode-canvas"></div>
+    <p class="qr-url-text" id="qr-url-text"></p>
+  </div>
+
   <!-- Firebase SDK -->
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+
+  <!-- QRコードライブラリ -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 
   <!-- アプリスクリプト -->
   <script src="js/firebase-config.js"></script>

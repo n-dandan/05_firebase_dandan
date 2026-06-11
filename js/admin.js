@@ -23,8 +23,13 @@ const cancelEditBtn = document.getElementById('cancel-edit-btn');
 const surveyManagementList = document.getElementById('survey-management-list');
 
 const adminCommentsList = document.getElementById('admin-comments-list');
+const toggleQrBtn = document.getElementById('toggle-qr-btn');
+const eventNameInput = document.getElementById('event-name-input');
+const saveEventNameBtn = document.getElementById('save-event-name-btn');
 
-let editingSurveyId = null; // 編集中のアンケートID(新規作成時はnull)
+let editingSurveyId = null;
+let currentShowQrCode = false;
+let currentQrPosition = 'bottom-right'; // 編集中のアンケートID(新規作成時はnull)
 let currentDisplaySurveyIds = []; // 会場スクリーンに表示中のアンケートIDリスト
 
 // ============================================
@@ -85,6 +90,59 @@ function showLoginAlert(message, type) {
   loginAlert.innerHTML = `<div class="alert alert-${type}">${message}</div>`;
 }
 
+// QRコード位置ボタンの状態更新
+function updateQrPositionButtons(pos) {
+  document.querySelectorAll('.qr-pos-btn').forEach(btn => {
+    const isActive = btn.dataset.pos === pos;
+    btn.classList.toggle('btn-primary', isActive);
+    btn.classList.toggle('btn-secondary', !isActive);
+  });
+}
+
+// QRコード位置変更（イベント委譲）
+document.addEventListener('click', async (e) => {
+  if (!e.target.classList.contains('qr-pos-btn')) return;
+  const pos = e.target.dataset.pos;
+  try {
+    await db.collection('appState').doc('current').set({
+      qrPosition: pos,
+      updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+    }, { merge: true });
+  } catch (error) {
+    console.error('QR位置変更エラー:', error);
+    alert('QRコード位置の変更に失敗しました');
+  }
+});
+
+// イベント名保存
+saveEventNameBtn.addEventListener('click', async () => {
+  const name = eventNameInput.value.trim();
+  try {
+    await db.collection('appState').doc('current').set({
+      eventName: name || 'イベント Live',
+      updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+    }, { merge: true });
+    saveEventNameBtn.textContent = '保存しました';
+    setTimeout(() => { saveEventNameBtn.textContent = '保存'; }, 1500);
+  } catch (error) {
+    console.error('イベント名保存エラー:', error);
+    alert('イベント名の保存に失敗しました');
+  }
+});
+
+// QRコード表示トグル
+toggleQrBtn.addEventListener('click', async () => {
+  try {
+    await db.collection('appState').doc('current').set({
+      showQrCode: !currentShowQrCode,
+      updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+    }, { merge: true });
+  } catch (error) {
+    console.error('QR表示切替エラー:', error);
+    alert('QRコード表示の切り替えに失敗しました');
+  }
+});
+
 // ============================================
 // 管理画面の初期化(ログイン後に実行)
 // ============================================
@@ -112,6 +170,17 @@ function subscribeToAppState() {
     }
 
     const data = doc.data();
+    currentShowQrCode = data.showQrCode || false;
+    toggleQrBtn.textContent = currentShowQrCode ? 'QRコードを非表示にする' : 'QRコードを表示する';
+    toggleQrBtn.className = currentShowQrCode ? 'btn btn-primary' : 'btn btn-secondary';
+
+    currentQrPosition = data.qrPosition || 'bottom-right';
+    updateQrPositionButtons(currentQrPosition);
+
+    if (document.activeElement !== eventNameInput) {
+      eventNameInput.value = data.eventName || '';
+    }
+
     const newIds = data.displaySurveyIds || [];
     const changed = JSON.stringify([...newIds].sort()) !== JSON.stringify([...currentDisplaySurveyIds].sort());
     if (changed) {
@@ -287,7 +356,7 @@ function subscribeToSurveys() {
             </div>
             <div class="survey-item-actions">
               <button class="btn btn-primary btn-sm toggle-active-btn" data-id="${survey.id}" data-active="${survey.isActive}">
-                ${survey.isActive ? '非公開にする' : '公開する'}
+                ${survey.isActive ? '募集終了' : '回答募集'}
               </button>
               <button class="btn btn-success btn-sm show-on-display-btn ${isDisplaying ? 'active-display' : ''}" data-id="${survey.id}">
                 ${isDisplaying ? '会場表示中' : '会場表示'}

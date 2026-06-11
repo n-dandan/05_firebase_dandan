@@ -8,6 +8,8 @@ body.display-mode {
   color: #ffffff;
   overflow: hidden;
   height: 100vh;
+  display: flex;
+  flex-direction: column;
 }
 
 .display-header {
@@ -16,6 +18,50 @@ body.display-mode {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  flex-shrink: 0;
+}
+
+/* アンケートバナー */
+.survey-banner {
+  background: linear-gradient(90deg, #ff9500 0%, #ff6b00 100%);
+  color: #ffffff;
+  text-align: center;
+  padding: 10px 24px;
+  font-size: 17px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  flex-shrink: 0;
+}
+
+/* QRコードオーバーレイ */
+.qr-overlay {
+  position: fixed;
+  background-color: #ffffff;
+  border-radius: 16px;
+  padding: 20px;
+  text-align: center;
+  z-index: 100;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+}
+
+.qr-overlay.pos-top-left    { top: 120px; left: 32px; }
+.qr-overlay.pos-top-right   { top: 120px; right: 32px; }
+.qr-overlay.pos-bottom-left  { bottom: 32px; left: 32px; }
+.qr-overlay.pos-bottom-right { bottom: 32px; right: 32px; }
+
+.qr-label {
+  font-size: 13px;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin-bottom: 12px;
+}
+
+.qr-url-text {
+  font-size: 10px;
+  color: #6e6e73;
+  margin-top: 10px;
+  word-break: break-all;
+  max-width: 180px;
 }
 
 .display-header h1 {
@@ -37,8 +83,9 @@ body.display-mode {
 
 .display-main {
   padding: 32px;
-  height: calc(100vh - 80px);
+  flex: 1;
   overflow: hidden;
+  min-height: 0;
 }
 
 /* 2カラムレイアウト */
