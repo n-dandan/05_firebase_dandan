@@ -38,7 +38,36 @@ body.display-mode {
 .display-main {
   padding: 32px;
   height: calc(100vh - 80px);
+  overflow: hidden;
+}
+
+/* 2カラムレイアウト */
+#display-layout {
+  display: flex;
+  height: 100%;
+  gap: 0;
+}
+
+#comments-view {
+  flex: 1;
   overflow-y: auto;
+  height: 100%;
+}
+
+/* アンケートモード: 左アンケート・右コメント */
+#display-layout.survey-mode #survey-view {
+  flex: 0 0 55%;
+  overflow-y: auto;
+  height: 100%;
+  padding-right: 28px;
+  border-right: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+#display-layout.survey-mode #comments-view {
+  flex: 0 0 45%;
+  overflow-y: auto;
+  height: 100%;
+  padding-left: 28px;
 }
 
 /* コメント表示モード */
@@ -46,6 +75,11 @@ body.display-mode {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
   gap: 20px;
+}
+
+/* アンケートモード時は右側が狭いため1カラム固定 */
+#display-layout.survey-mode .comments-grid {
+  grid-template-columns: 1fr;
 }
 
 .display-comment {

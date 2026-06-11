@@ -12,8 +12,6 @@ const loginAlert = document.getElementById('login-alert');
 const logoutBtn = document.getElementById('logout-btn');
 const adminEmail = document.getElementById('admin-email');
 
-const modeCommentsBtn = document.getElementById('mode-comments-btn');
-const modeSurveyBtn = document.getElementById('mode-survey-btn');
 
 const surveyFormTitle = document.getElementById('survey-form-title');
 const surveyQuestionInput = document.getElementById('survey-question');
@@ -27,6 +25,7 @@ const surveyManagementList = document.getElementById('survey-management-list');
 const adminCommentsList = document.getElementById('admin-comments-list');
 
 let editingSurveyId = null; // 編集中のアンケートID(新規作成時はnull)
+let currentDisplaySurveyIds = []; // 会場スクリーンに表示中のアンケートIDリスト
 
 // ============================================
 // 認証
@@ -112,32 +111,39 @@ function subscribeToAppState() {
       return;
     }
 
-    const mode = doc.data().displayMode;
-    if (mode === 'survey') {
-      modeSurveyBtn.classList.add('active');
-      modeCommentsBtn.classList.remove('active');
-    } else {
-      modeCommentsBtn.classList.add('active');
-      modeSurveyBtn.classList.remove('active');
+    const data = doc.data();
+    const newIds = data.displaySurveyIds || [];
+    const changed = JSON.stringify([...newIds].sort()) !== JSON.stringify([...currentDisplaySurveyIds].sort());
+    if (changed) {
+      currentDisplaySurveyIds = newIds;
+      updateDisplaySurveyIndicator();
     }
   });
 }
 
-modeCommentsBtn.addEventListener('click', () => updateDisplayMode('comments'));
-modeSurveyBtn.addEventListener('click', () => updateDisplayMode('survey'));
-
-async function updateDisplayMode(mode) {
-  try {
-    await db.collection('appState').doc('current').set({
-      displayMode: mode,
-      displayStyle: 'list',
-      updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-    }, { merge: true });
-  } catch (error) {
-    console.error('モード切り替えエラー:', error);
-    alert('モード切り替えに失敗しました');
-  }
+function updateDisplaySurveyIndicator() {
+  document.querySelectorAll('.survey-item').forEach(item => {
+    const id = item.dataset.id;
+    const isDisplaying = currentDisplaySurveyIds.includes(id);
+    item.classList.toggle('is-displayed', isDisplaying);
+    const btn = item.querySelector('.show-on-display-btn');
+    if (btn) {
+      btn.textContent = isDisplaying ? '会場表示中' : '会場表示';
+      btn.classList.toggle('active-display', isDisplaying);
+    }
+    const badge = item.querySelector('.status-displaying');
+    if (isDisplaying && !badge) {
+      const header = item.querySelector('.survey-item-header');
+      const newBadge = document.createElement('span');
+      newBadge.className = 'status-badge status-displaying';
+      newBadge.textContent = '会場表示中';
+      header.appendChild(newBadge);
+    } else if (!isDisplaying && badge) {
+      badge.remove();
+    }
+  });
 }
+
 
 // ============================================
 // アンケート管理
@@ -260,16 +266,20 @@ function subscribeToSurveys() {
       });
 
       surveyManagementList.innerHTML = surveys.map((survey) => {
+        const isDisplaying = currentDisplaySurveyIds.includes(survey.id);
         const statusBadge = survey.isActive
           ? '<span class="status-badge status-active">公開中</span>'
           : '<span class="status-badge status-inactive">非公開</span>';
+        const displayBadge = isDisplaying
+          ? '<span class="status-badge status-displaying">会場表示中</span>'
+          : '';
         const typeLabel = survey.type === 'radio' ? '単一選択' : '複数選択';
 
         return `
-          <div class="survey-item" data-id="${survey.id}">
+          <div class="survey-item ${isDisplaying ? 'is-displayed' : ''}" data-id="${survey.id}">
             <div class="survey-item-header">
               <div class="survey-item-question">${escapeHtmlStr(survey.question)}</div>
-              ${statusBadge}
+              ${statusBadge}${displayBadge}
             </div>
             <div class="survey-item-meta">${typeLabel} / ${survey.options.length}選択肢</div>
             <div class="survey-item-options">
@@ -278,6 +288,9 @@ function subscribeToSurveys() {
             <div class="survey-item-actions">
               <button class="btn btn-primary btn-sm toggle-active-btn" data-id="${survey.id}" data-active="${survey.isActive}">
                 ${survey.isActive ? '非公開にする' : '公開する'}
+              </button>
+              <button class="btn btn-success btn-sm show-on-display-btn ${isDisplaying ? 'active-display' : ''}" data-id="${survey.id}">
+                ${isDisplaying ? '会場表示中' : '会場表示'}
               </button>
               <button class="btn btn-secondary btn-sm edit-btn" data-id="${survey.id}">編集</button>
               <button class="btn btn-danger btn-sm delete-btn" data-id="${survey.id}">削除</button>
@@ -294,7 +307,7 @@ surveyManagementList.addEventListener('click', async (e) => {
   if (!id) return;
 
   if (e.target.classList.contains('toggle-active-btn')) {
-    // 公開切り替え
+    // 参加者向け公開切り替え
     const currentActive = e.target.dataset.active === 'true';
     try {
       await db.collection('surveys').doc(id).update({
@@ -303,6 +316,20 @@ surveyManagementList.addEventListener('click', async (e) => {
     } catch (error) {
       console.error('公開切替エラー:', error);
       alert('公開切替に失敗しました');
+    }
+  } else if (e.target.classList.contains('show-on-display-btn')) {
+    // 会場表示トグル（追加 or 削除）
+    const isCurrentlyDisplaying = currentDisplaySurveyIds.includes(id);
+    try {
+      await db.collection('appState').doc('current').set({
+        displaySurveyIds: isCurrentlyDisplaying
+          ? firebase.firestore.FieldValue.arrayRemove(id)
+          : firebase.firestore.FieldValue.arrayUnion(id),
+        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+      }, { merge: true });
+    } catch (error) {
+      console.error('会場表示切替エラー:', error);
+      alert('会場表示の切り替えに失敗しました');
     }
   } else if (e.target.classList.contains('edit-btn')) {
     // 編集モード

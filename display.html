@@ -15,19 +15,21 @@
   </header>
 
   <main class="display-main">
+    <div id="display-layout">
 
-    <!-- コメント表示モード -->
-    <div id="comments-view">
-      <div id="comments-container" class="comments-grid"></div>
-      <div id="comments-empty" class="display-empty">まだコメントはありません</div>
+      <!-- アンケート結果パネル（アンケートモード時に左側表示） -->
+      <div id="survey-view" class="hidden">
+        <div id="survey-results-container" class="survey-results-container"></div>
+        <div id="survey-empty" class="display-empty">公開中のアンケートはありません</div>
+      </div>
+
+      <!-- コメントパネル（常時表示、アンケートモード時は右側） -->
+      <div id="comments-view">
+        <div id="comments-container" class="comments-grid"></div>
+        <div id="comments-empty" class="display-empty">まだコメントはありません</div>
+      </div>
+
     </div>
-
-    <!-- アンケート結果表示モード -->
-    <div id="survey-view" class="hidden">
-      <div id="survey-results-container" class="survey-results-container"></div>
-      <div id="survey-empty" class="display-empty">公開中のアンケートはありません</div>
-    </div>
-
   </main>
 
   <!-- Firebase SDK -->

@@ -14,30 +14,7 @@
     @media (max-width: 768px) {
       .admin-grid { grid-template-columns: 1fr; }
     }
-    .mode-switch {
-      display: flex;
-      gap: 8px;
-      padding: 4px;
-      background-color: #f0f0f3;
-      border-radius: 10px;
-    }
-    .mode-switch button {
-      flex: 1;
-      padding: 12px;
-      border: none;
-      background-color: transparent;
-      border-radius: 8px;
-      cursor: pointer;
-      font-size: 14px;
-      font-weight: 500;
-      transition: all 0.15s;
-      color: #424245;
-    }
-    .mode-switch button.active {
-      background-color: #ffffff;
-      color: #0066ff;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-    }
+
     .survey-item {
       border: 1px solid #e5e5e7;
       border-radius: 10px;
@@ -85,6 +62,22 @@
     .status-inactive {
       background-color: #f0f0f3;
       color: #6e6e73;
+    }
+    .status-displaying {
+      background-color: #cce5ff;
+      color: #004085;
+    }
+    .btn-success {
+      background-color: #34c759;
+      color: #ffffff;
+    }
+    .btn-success:hover { background-color: #28a745; }
+    .btn-success.active-display {
+      background-color: #0056b3;
+    }
+    .survey-item.is-displayed {
+      border-color: #34c759;
+      background-color: #f0fff4;
     }
     .option-input-row {
       display: flex;
@@ -134,15 +127,6 @@
     </header>
 
     <main class="container-wide">
-
-      <!-- 表示モード切り替え -->
-      <section class="section">
-        <h2 class="section-title">会場スクリーンの表示モード</h2>
-        <div class="mode-switch">
-          <button id="mode-comments-btn" class="active">コメント表示</button>
-          <button id="mode-survey-btn">アンケート結果表示</button>
-        </div>
-      </section>
 
       <div class="admin-grid">
 

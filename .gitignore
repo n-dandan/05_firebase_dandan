@@ -1,5 +1,8 @@
 # Firebase設定ファイル（APIキーを含むため除外）
 js/firebase-config.js
 
+# 引き継ぎ仕様書（ローカル開発用ドキュメント）
+CLAUDE_CODE_HANDOVER.md
+
 # macOS
 .DS_Store

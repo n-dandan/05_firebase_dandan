@@ -3,6 +3,7 @@
 // ============================================
 
 // DOM要素の取得
+const displayLayout = document.getElementById('display-layout');
 const commentsView = document.getElementById('comments-view');
 const surveyView = document.getElementById('survey-view');
 const commentsContainer = document.getElementById('comments-container');
@@ -15,31 +16,34 @@ const modeIndicator = document.getElementById('mode-indicator');
 // 表示モードの監視
 // ============================================
 
+let displaySurveyIds = [];
+
 db.collection('appState').doc('current').onSnapshot((doc) => {
   if (!doc.exists) {
-    // 初期状態:コメント表示モード
     switchToCommentsMode();
     return;
   }
 
   const data = doc.data();
-  if (data.displayMode === 'survey') {
+  displaySurveyIds = data.displaySurveyIds || [];
+  if (displaySurveyIds.length > 0) {
     switchToSurveyMode();
   } else {
     switchToCommentsMode();
   }
+  renderSurveyResults();
 }, (error) => {
   console.error('appState取得エラー:', error);
 });
 
 function switchToCommentsMode() {
-  commentsView.classList.remove('hidden');
+  displayLayout.classList.remove('survey-mode');
   surveyView.classList.add('hidden');
   modeIndicator.textContent = 'コメント表示中';
 }
 
 function switchToSurveyMode() {
-  commentsView.classList.add('hidden');
+  displayLayout.classList.add('survey-mode');
   surveyView.classList.remove('hidden');
   modeIndicator.textContent = 'アンケート結果表示中';
 }
@@ -78,17 +82,16 @@ db.collection('comments')
 // アンケート結果のリアルタイム表示
 // ============================================
 
-let activeSurveys = []; // 公開中のアンケート設問
+let allSurveys = []; // 全アンケート設問（isActive問わず）
 let allResponses = []; // 全回答データ
 
-// アンケート設問の購読
+// アンケート設問の購読（display.htmlは会場表示専用のため全件取得）
 db.collection('surveys')
-  .where('isActive', '==', true)
   .orderBy('order', 'asc')
   .onSnapshot((snapshot) => {
-    activeSurveys = [];
+    allSurveys = [];
     snapshot.forEach((doc) => {
-      activeSurveys.push({ id: doc.id, ...doc.data() });
+      allSurveys.push({ id: doc.id, ...doc.data() });
     });
     renderSurveyResults();
   });
@@ -104,7 +107,11 @@ db.collection('responses').onSnapshot((snapshot) => {
 
 // アンケート結果の描画
 function renderSurveyResults() {
-  if (activeSurveys.length === 0) {
+  const surveysToShow = displaySurveyIds.length > 0
+    ? allSurveys.filter(s => displaySurveyIds.includes(s.id))
+    : allSurveys;
+
+  if (surveysToShow.length === 0) {
     surveyResultsContainer.innerHTML = '';
     surveyEmpty.classList.remove('hidden');
     return;
@@ -112,7 +119,7 @@ function renderSurveyResults() {
 
   surveyEmpty.classList.add('hidden');
 
-  surveyResultsContainer.innerHTML = activeSurveys.map((survey) => {
+  surveyResultsContainer.innerHTML = surveysToShow.map((survey) => {
     // この設問への回答を抽出
     const responses = allResponses.filter(r => r.surveyId === survey.id);
     const totalResponses = responses.length;
